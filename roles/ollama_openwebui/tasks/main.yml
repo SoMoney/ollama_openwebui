@@ -1,0 +1,90 @@
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    keyring: /etc/apt/trusted.gpg.d/docker.gpg
+
+- name: Add Docker repository
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Check if system has NVIDIA GPU
+  command: /usr/bin/nvidia-smi
+  register: nvidia_gpu_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Add NVIDIA GPG key
+  ansible.builtin.apt_key:
+    url: https://nvidia.github.io/libnvidia-container/gpgkey
+    state: present
+    keyring: /etc/apt/trusted.gpg.d/nvidia.gpg
+  when: nvidia_gpu_check.rc == 0
+
+- name: Update NVIDIA repository
+  ansible.builtin.shell: |
+    distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
+    curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+  when: nvidia_gpu_check.rc == 0
+  changed_when: false
+
+- name: Install required packages
+  apt:
+    name:
+      - git
+      - build-essential
+      - python3
+      - python3-pip
+      - python3-venv
+      - libssl-dev
+      - libffi-dev
+      - python3-dev
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - software-properties-common
+      - docker-ce
+      - docker-compose-plugin
+      - nginx
+      - openssl
+      - nvidia-container-toolkit
+    state: present
+    update_cache: yes
+
+- name: Install NVIDIA Docker Toolkit (nvidia-docker2)
+  ansible.builtin.apt:
+    name: nvidia-docker2
+    state: present
+    update_cache: yes
+  when: nvidia_gpu_check.rc == 0
+  notify: Restart_Docker
+
+- name: Download Docker Compose
+  get_url:
+    url: https://github.com/docker/compose/releases/latest/download/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+
+- name: Verify Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Verify Docker Compose installation
+  command: docker-compose --version
+  register: docker_compose_version
+  changed_when: false
+
+- debug:
+    msg: "Docker Compose version: {{ docker_compose_version.stdout }}"
+
+# PREREQ: ansible-galaxy collection install community.docker
+- name: Include Ollama, open-WebUI, Nginx tasks
+  include_tasks: "{{ item }}"
+  with_items:
+    - ollama_openwebui.yml
+    - nginx.yml

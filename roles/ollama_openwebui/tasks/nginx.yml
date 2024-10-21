@@ -1,0 +1,32 @@
+- name: Create directory for SSL certificates
+  file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: '0755'
+
+- name: Check if SSL certificate exists
+  stat:
+    path: /etc/nginx/ssl/nginx.crt
+  register: ssl_cert
+
+- name: Generate self-signed SSL certificate if absent
+  command: openssl req -x509 -nodes -days 1095 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
+  when: ssl_cert.stat.exists == false
+  notify: Reload Nginx
+
+- name: Configure Nginx to forward https traffic to local Ollama WebUI on 3000
+  template:
+    src: templates/ollama-webui.j2
+    dest: /etc/nginx/sites-available/ollama-webui
+  notify: Reload Nginx
+
+- name: Enable Nginx site configuration
+  file:
+    src: /etc/nginx/sites-available/ollama-webui
+    dest: /etc/nginx/sites-enabled/ollama-webui
+    state: link
+
+- name: Remove default Nginx site configuration
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent

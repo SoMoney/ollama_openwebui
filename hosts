@@ -1,0 +1,2 @@
+[webAI]
+ai ansible_become=yes

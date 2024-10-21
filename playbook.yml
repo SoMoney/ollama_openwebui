@@ -1,0 +1,14 @@
+- hosts: all
+  tags:
+  - baseline
+  tasks:
+  - name: apt update
+    apt:
+      name: '*'
+      state: latest
+      update_cache: true
+    become: yes
+
+- hosts: webAI
+  roles:
+  - ollama_openwebui

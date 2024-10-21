@@ -1,0 +1,56 @@
+---
+# PREREQ: ansible-galaxy collection install community.docker
+- name: Check if NVIDIA GPU is present
+  command: /usr/bin/nvidia-smi -L
+  register: gpu_check
+  changed_when: false
+  failed_when: "'GPU' not in gpu_check.stdout"
+
+- name: Install Ollama container
+  community.docker.docker_container:
+    name: ollama
+    image: ollama/ollama
+    state: started
+    restart_policy: always
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    device_requests:
+      - driver: nvidia
+        count: 1
+        capabilities:
+          - gpu
+  when: "'GPU' in gpu_check.stdout"
+
+- name: Install LLMs into Ollama container
+  community.docker.docker_container_exec:
+    container: ollama
+    command: "{{ run_command }}"  # Changed to use a new variable
+    tty: true
+  loop: 
+    - "ollama run llama3.1:8b"
+    - "ollama run dolphin-llama3"
+  loop_control:
+    loop_var: run_command
+  when: "'GPU' in gpu_check.stdout"
+  changed_when: false
+
+- name: Install Open-WebUI with CUDA support
+  community.docker.docker_container:
+    name: open-webui
+    image: ghcr.io/open-webui/open-webui:cuda
+    state: started
+    restart_policy: always
+    volumes:
+      - open-web-ui:/app/backend/data
+    ports:
+      - "3000:8080"
+    device_requests:
+      - driver: nvidia
+        count: 1
+        capabilities:
+          - gpu
+    etc_hosts:
+      host.docker.internal: host-gateway
+  when: "'GPU' in gpu_check.stdout"
