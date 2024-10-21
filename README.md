@@ -1,6 +1,8 @@
-# Ansible Role: Ollama WebUI and Open-WebUI Setup
+# Ansible Role: Ollama + Open-WebUI to Nginx project
 
-This Ansible role automates the installation and configuration of Docker, NVIDIA container toolkit, Ollama LLM WebUI, Open-WebUI with CUDA support, and Nginx reverse proxy. It includes GPU detection, Docker container management, and SSL configuration for the Nginx reverse proxy to expose the WebUIs securely.
+This Ansible role automates the installation and configuration of Docker, NVIDIA container toolkit, Ollama LLM WebUI, Open-WebUI with CUDA support, and Nginx reverse proxy.
+It includes GPU detection, Docker container management, and SSL configuration for the Nginx reverse proxy to expose the WebUIs securely.
+When complete you should be able to reach the openWebUI interface with https://<ip-address>
 
 ## Requirements
 
