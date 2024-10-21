@@ -16,3 +16,10 @@ apt install pipx
 pipx install --include-deps ansible
 ansible-galaxy collection install community.docker
 ```
+
+The ansible ./hosts file assumes the server is called "ai", you will need to edit your servers /etc/hosts file so ansible knows what ip.
+EXAMPLE:
+```
+192.168.x.x ai ai-server
+```
+
