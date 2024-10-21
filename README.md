@@ -22,7 +22,7 @@ EXAMPLE:
 ```
 sudo vi /etc/hosts
 
-# Ansible IP to hostname alias
+# Ansible IP to openWebUI alias
 192.168.x.x ai ai-server
 ```
 
