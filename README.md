@@ -9,7 +9,7 @@ This Ansible role automates the installation and configuration of Docker, NVIDIA
 - Docker and Docker Compose
 - Ansible `community.docker` collection
 
-To install a basic ansible distribution w/docker from which to install the project:
+To install a basic ansible distribution w/community.docker module from which to install the project:
 ```bash
 cd ~
 apt install pipx
