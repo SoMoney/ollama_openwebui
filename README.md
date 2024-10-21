@@ -20,6 +20,9 @@ ansible-galaxy collection install community.docker
 The ansible ./hosts file assumes the server is called "ai", you will need to edit your servers /etc/hosts file so ansible knows what ip.
 EXAMPLE:
 ```
+sudo vi /etc/hosts
+
+# Ansible IP to hostname alias
 192.168.x.x ai ai-server
 ```
 
