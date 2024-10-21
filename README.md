@@ -17,12 +17,12 @@ pipx install --include-deps ansible
 ansible-galaxy collection install community.docker
 ```
 
-The ansible ./hosts file assumes the server is called "ai", you will need to edit your servers /etc/hosts file so ansible knows what ip.
+The ansible ./hosts inventory file assumes the server is called "ai". If you want to continue using that alias, you will need to edit your Ansible servers /etc/hosts file so its reachable.
 EXAMPLE:
 ```
 sudo vi /etc/hosts
 
-# Ansible IP to openWebUI alias
+# IP to openWebUI alias on Ansible server
 192.168.x.x ai ai-server
 ```
 
